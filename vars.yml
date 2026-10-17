@@ -1,0 +1,8 @@
+# Values substituted into manifest.yml as ((name)).
+# Hostnames are shared by everyone on the domain, so keep "suffix" unique to you.
+suffix: BAIP
+domain: cfapps.ap11.hana.ondemand.com
+
+# Name of your existing Job Scheduling service instance (standard plan), as shown by `cf services`.
+# Also used by scripts/01-create-xsuaa.sh to grant it the JOBSCHEDULER scope.
+jobscheduler_instance: Job_Sche

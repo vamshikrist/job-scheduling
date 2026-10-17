@@ -1,0 +1,35 @@
+{
+  "welcomeFile": "/index.html",
+  "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/do/logout",
+    "logoutPage": "/logout.html"
+  },
+  "routes": [
+    {
+      "source": "^/api/(.*)$",
+      "target": "/api/$1",
+      "destination": "backend-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": true
+    },
+    {
+      "source": "^/logout.html$",
+      "target": "/logout.html",
+      "destination": "frontend",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/(data|jobs)/?$",
+      "target": "/$1.html",
+      "destination": "frontend",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/(.*)$",
+      "target": "/$1",
+      "destination": "frontend",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

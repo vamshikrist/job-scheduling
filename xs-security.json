@@ -1,0 +1,47 @@
+{
+  "xsappname": "job-scheduling",
+  "tenant-mode": "dedicated",
+  "description": "Security profile for JOB_SCHEDULING. Apply with scripts/01-create-xsuaa.sh, which fills in the Job Scheduling instance name from vars.yml.",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Viewer",
+      "description": "View financial data"
+    },
+    {
+      "name": "$XSAPPNAME.JobAdmin",
+      "description": "Create and run jobs"
+    },
+    {
+      "name": "$XSAPPNAME.JOBSCHEDULER",
+      "description": "Lets the Job Scheduling service call the job action endpoint",
+      "grant-as-authority-to-apps": ["$XSSERVICENAME(__JOBSCHEDULER_INSTANCE__)"]
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Viewer",
+      "description": "View financial data",
+      "scope-references": ["$XSAPPNAME.Viewer"]
+    },
+    {
+      "name": "JobAdmin",
+      "description": "View financial data, create and run jobs",
+      "scope-references": ["$XSAPPNAME.Viewer", "$XSAPPNAME.JobAdmin"]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "JobScheduling_Viewer",
+      "description": "Read access to JOB_SCHEDULING",
+      "role-template-references": ["$XSAPPNAME.Viewer"]
+    },
+    {
+      "name": "JobScheduling_Admin",
+      "description": "Full access to JOB_SCHEDULING",
+      "role-template-references": ["$XSAPPNAME.JobAdmin"]
+    }
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": ["https://*.cfapps.ap11.hana.ondemand.com/**"]
+  }
+}

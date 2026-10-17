@@ -1,0 +1,15 @@
+{
+  "name": "job-scheduling-approuter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Application router: XSUAA login and routing for JOB_SCHEDULING",
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0"
+  },
+  "scripts": {
+    "start": "node node_modules/@sap/approuter/approuter.js"
+  },
+  "dependencies": {
+    "@sap/approuter": "^23.0.0"
+  }
+}

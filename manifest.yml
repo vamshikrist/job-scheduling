@@ -1,0 +1,60 @@
+# Deploy with: ./scripts/03-deploy.sh   (builds the frontend, then cf push --vars-file vars.yml)
+# Hostnames are fixed (not random) so the approuter's destinations can point at them.
+applications:
+
+  # Entry point for users: handles XSUAA login, then forwards to frontend/backend
+  - name: job-scheduling-approuter
+    path: approuter
+    memory: 256M
+    buildpacks:
+      - nodejs_buildpack
+    routes:
+      - route: job-scheduling-approuter-((suffix)).((domain))
+    env:
+      destinations: >
+        [
+          {
+            "name": "backend-api",
+            "url": "https://job-scheduling-srv-((suffix)).((domain))",
+            "forwardAuthToken": true
+          },
+          {
+            "name": "frontend",
+            "url": "https://job-scheduling-ui-((suffix)).((domain))"
+          }
+        ]
+    services:
+      - job-scheduling-xsuaa
+
+  # Python API + job action endpoint. Also hosts the CF task (python task_full_extract.py).
+  # One gunicorn worker so the "extract already running" guard covers the whole instance;
+  # threads keep the API responsive while an extract runs in the background.
+  - name: job-scheduling-srv
+    path: backend
+    memory: 512M
+    disk_quota: 1G
+    buildpacks:
+      - python_buildpack
+    command: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120
+    routes:
+      - route: job-scheduling-srv-((suffix)).((domain))
+    health-check-type: http
+    health-check-http-endpoint: /health
+    env:
+      HANA_SCHEMA: MFRS18_CORE
+      HANA_TABLE: FINANCIAL_DATA
+      EXTRACT_BATCH_SIZE: 20000
+      TASK_MEMORY_MB: 512
+    services:
+      - job-scheduling-xsuaa
+      - my-hanadb-job
+      - ((jobscheduler_instance))
+
+  # Static Next.js export (frontend/out), only meant to be reached through the approuter
+  - name: job-scheduling-ui
+    path: frontend/out
+    memory: 64M
+    buildpacks:
+      - staticfile_buildpack
+    routes:
+      - route: job-scheduling-ui-((suffix)).((domain))
